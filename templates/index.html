@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <title>Letter Blends</title> -->
+    <style>
+        body {
+            font-family: "Comic Sans MS";
+            text-align: center;
+            background-color: #fbfbde;
+            margin-top: 70px;
+        }
+        h1 {
+            font-size: 80px;
+        }
+        button {
+            font-size: 50px;
+            padding: 15px;
+            margin-top: 50px;
+            margin: 10px auto;
+            border: none;
+            cursor: pointer;
+            background-color: gray;
+            color: white;
+            border-radius: 10px;
+            width: 40%;
+            display: block;
+        }
+        button:hover {
+            background-color: darkgray;
+        }
+        #output {
+            font-size: 250px;
+            margin-top:  100px;
+            /* vertical-align: 50%; */
+            color: #333;
+        }
+        #home-button {
+            font-size: 50px;
+            padding: 15px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            background-color: gray;
+            color: white;
+            border-radius: 10px;
+            position:absolute;
+            top:0;
+            left:0;
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+    <div id="page-title">
+     <h1>Letter Blends</h1>
+    </div>
+
+    <!-- Level selection buttons -->
+    <div id="level-buttons">
+        <button onclick="startGame(1)">Level 1</button>
+        <button onclick="startGame(2)">Level 2</button>
+        <button onclick="startGame(3)">Level 3</button>
+    </div>
+
+    <!-- Home button (Initially hidden) -->
+    <home-button id="home-button" onclick="showHome()">Home</home-button>
+
+    <!-- Output display -->
+    <div id="output"> </div>
+
+    <script>
+        let roundTimer;
+
+        function startGame(level) {
+            fetch('/start_game', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({level: level})
+            }).then(() => {
+                document.getElementById("level-buttons").style.display = "none"; // Hide buttons
+                document.getElementById("page-title").style.display = "none"; // Hide title
+                document.getElementById("home-button").style.display = "inline-block"; // Show Home button
+                nextRound();
+            });
+        }
+
+        function nextRound() {
+            fetch('/next_round')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('output').innerText = data.output;
+                    clearTimeout(roundTimer);
+                    roundTimer = setTimeout(nextRound, data.time_per_round);
+                });
+        }
+
+        function showHome() {
+            document.getElementById("level-buttons").style.display = "block"; // Show buttons
+            document.getElementById("page-title").style.display = "block"; // Show title
+            document.getElementById("home-button").style.display = "none"; // Hide Home button
+            document.getElementById("output").innerText = " "; // Reset output
+            clearTimeout(roundTimer);
+        }
+    </script>
+</body>
+</html>
